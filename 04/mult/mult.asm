@@ -8,6 +8,9 @@
 
 // Put your code here.
 
+// Note: Program doesn't handle the case of our product (or intermeddiate sum) overflowing 
+// our 16 bit register (values greater than 2**15)
+
 @counter
 M=1
 @sum
