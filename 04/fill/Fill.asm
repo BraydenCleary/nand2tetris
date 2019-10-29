@@ -46,7 +46,7 @@ D;JGT
   M=M+1
 
   @SETTOWHITE
-  0;JEQ
+  0;JMP
 
 (SETTOBLACK)
   @i
@@ -66,4 +66,4 @@ D;JGT
   M=M+1
   
   @SETTOBLACK
-  0;JEQ
+  0;JMP

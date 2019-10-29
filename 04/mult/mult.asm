@@ -53,7 +53,7 @@ D;JLT
   M=M+1
   
   @ADDLOOPR1TIMES
-  0;JEQ
+  0;JMP
 
 (ADDLOOPR0TIMES)
   @R1 // This value will get repeatedly added
@@ -71,7 +71,7 @@ D;JLT
   M=M+1
   
   @ADDLOOPR0TIMES
-  0;JEQ
+  0;JMP
 
 (SETR2ANDEND)
   @sum
@@ -79,9 +79,9 @@ D;JLT
   @R2
   M=D
   @END
-  0;JEQ
+  0;JMP
 
 (END)
   @END
-  0;JEQ
+  0;JMP
   
