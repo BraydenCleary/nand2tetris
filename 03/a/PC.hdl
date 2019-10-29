@@ -17,7 +17,6 @@ CHIP PC {
 
     PARTS:
     
-
     Inc16(in=feedback, out=incout);
 
     Mux16(a=feedback, b=incout, sel=inc, out=m1);
