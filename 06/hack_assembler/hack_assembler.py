@@ -13,6 +13,20 @@ class HackAssembler:
   def compile(self):
     self.__scan_for_labels()
     self.__scan_for_variables()
+    self.__begin_compilation()
+
+  def __begin_compilation(self):
+    with open(self.asm_filename) as fp:
+      for cnt, line in enumerate(fp):
+        # Get command type A-Command, C-Command, or Label
+        command_type, command_value = self.parser.command_type_and_value(line)
+        
+        if command_type == 'A':
+          print 'A: {}'.format(command_value)
+        elif command_type == 'C':
+          print 'C: {}'.format(command_value)
+        else:
+          continue
 
   def __scan_for_labels(self):
     self.__read_file_by_line(self.__add_value_to_symbol_table_if_label)
@@ -39,5 +53,7 @@ class HackAssembler:
         self.symbol_table.add(self.parser.variable_value(line), self.next_open_memory_address)
         self.__increment_next_open_memory_address()
 
-h = HackAssembler('/Users/braydencleary/Desktop/nand2tetris/projects/06/rect/Rect.asm')
+# h = HackAssembler('/Users/braydencleary/Desktop/nand2tetris/projects/06/max/Max.asm')
+h = HackAssembler('/Users/braydencleary/Desktop/nand2tetris/projects/06/pong/Pong.asm')
+# h = HackAssembler('/Users/braydencleary/Desktop/nand2tetris/projects/06/rect/Rect.asm')
 h.compile()

@@ -27,3 +27,7 @@ DEFAULT_SYMBOL_TABLE_ENTRIES = [
 LABEL_REGEX = '\([A-Z_]+\)'
 
 VARIABLE_REGEX = '@[a-z_]+'
+
+C_INSTRUCTION_REGEX = '(\S+)(.*)(\/*)'
+
+A_INSTRUCTION_REGEX = '@[0-9A-Za-z_]+'

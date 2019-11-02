@@ -1,6 +1,8 @@
 import re
 from constants import LABEL_REGEX
 from constants import VARIABLE_REGEX
+from constants import C_INSTRUCTION_REGEX
+from constants import A_INSTRUCTION_REGEX
 
 class Parser:
   def __init__(self):
@@ -29,5 +31,21 @@ class Parser:
     variable_chars = re.search(VARIABLE_REGEX, line)
     if variable_chars:
       return variable_chars.group()[1:]
+
+  def command_type_and_value(self, line):
+    a_instruction_chars = re.search(A_INSTRUCTION_REGEX, line)
+    c_instruction_chars = re.search(C_INSTRUCTION_REGEX, line)
+
+    if a_instruction_chars and a_instruction_chars.group()[0] == '@':
+      command_type = 'A'
+      command_value = a_instruction_chars.group().strip()
+    elif c_instruction_chars and c_instruction_chars.groups()[0][0] not in ['(', '/']:
+      command_type = 'C'
+      command_value = c_instruction_chars.groups()[0].strip()
+    else:
+      command_type  = 'Ignore'
+      command_value = 'Noop'
+
+    return command_type, command_value
       
   
