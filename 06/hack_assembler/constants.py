@@ -24,7 +24,7 @@ DEFAULT_SYMBOL_TABLE_ENTRIES = [
   ('KBD', 24576)
 ]
 
-LABEL_REGEX = '\([A-Z_]+\)'
+LABEL_REGEX = '\([A-Za-z_.0-9]+\)'
 
 VARIABLE_REGEX = '@[a-z_]+'
 

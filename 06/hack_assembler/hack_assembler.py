@@ -6,13 +6,14 @@ class HackAssembler:
   def __init__(self, asm_filename):
     self.asm_filename = asm_filename
     self.symbol_table = SymbolTable()
-    self.binary_translator = BinaryTraslator()
+    self.binary_translator = BinaryTraslator(self.symbol_table)
     self.parser = Parser()
     self.next_open_memory_address = 16
 
   def compile(self):
     self.__scan_for_labels()
     self.__scan_for_variables()
+    print self.symbol_table.entries
     self.__begin_compilation()
 
   def __begin_compilation(self):
@@ -22,9 +23,12 @@ class HackAssembler:
         command_type, command_value = self.parser.command_type_and_value(line)
         
         if command_type == 'A':
-          print 'A: {}'.format(command_value)
+          self.binary_translator.translate(command_type, command_value)
+          # print 'A: {}'.format(command_value)
+          # print "{} | {}".format(line, self.binary_translator.translate(command_type, command_value))
         elif command_type == 'C':
-          print 'C: {}'.format(command_value)
+          pass
+          # print 'C: {}'.format(command_value)
         else:
           continue
 

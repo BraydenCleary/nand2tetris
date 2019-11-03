@@ -36,6 +36,9 @@ class Parser:
     a_instruction_chars = re.search(A_INSTRUCTION_REGEX, line)
     c_instruction_chars = re.search(C_INSTRUCTION_REGEX, line)
 
+    # ToFix!
+    # I think my regex for parsing out the A instructions in flawed for cases like LOOP_ball.bounce
+
     if a_instruction_chars and a_instruction_chars.group()[0] == '@':
       command_type = 'A'
       command_value = a_instruction_chars.group().strip()
