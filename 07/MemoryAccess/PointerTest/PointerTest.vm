@@ -13,7 +13,7 @@ push constant 32
 pop this 2
 push constant 46
 pop that 6
-push pointer 0
+push pointer 0 //good up to here
 push pointer 1
 add
 push this 2
