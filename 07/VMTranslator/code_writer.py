@@ -1,6 +1,9 @@
 class CodeWriter:
   def __init__(self, vm_filename):
     self.base_filename = vm_filename.split('.vm')[0].split('/')[-1]
+    self.counter_for_gt = 0
+    self.counter_for_lt = 0
+    self.counter_for_eq = 0
 
   def generate(self, command_type, arg1, arg2):
     if command_type == 'C_ARITHMETIC':
@@ -57,6 +60,7 @@ class CodeWriter:
     )
   
   def __generate_eq(self):
+    self.counter_for_eq += 1
     return (
       '// Generating eq\n' +
       '@SP\n' + 
@@ -64,27 +68,31 @@ class CodeWriter:
       'D=M\n' + 
       'A=A-1\n' + 
       'D=M-D\n' + 
-      '@IS_EQUAL\n' + 
+      '@IS_EQUAL{}\n'.format(self.counter_for_eq) + 
       'D;JEQ\n' + 
-      '@IS_NOT_EQUAL\n' + 
+      '@IS_NOT_EQUAL{}\n'.format(self.counter_for_eq) + 
       'D;JNE\n' + 
-      '(IS_EQUAL)\n' + 
-      '@SP\n' + 
-      'A=M-1\n' + 
-      'M=-1\n' + 
-      '@END\n' + 
+      '(IS_EQUAL{})\n'.format(self.counter_for_eq) + 
+      '@SP\n' +
+      'A=M-1\n' +
+      'A=A-1\n' +
+      'M=-1\n' +
+      '@EQ_END{}\n'.format(self.counter_for_eq) + 
       '0;JMP\n' + 
-      '(IS_NOT_EQUAL)\n' + 
+      '(IS_NOT_EQUAL{})\n'.format(self.counter_for_eq) + 
       '@SP\n' + 
       'A=M-1\n' + 
+      'A=A-1\n' +
       'M=0\n' + 
-      '@END\n' + 
+      '@EQ_END{}\n'.format(self.counter_for_eq) + 
       '0;JMP\n' + 
-      '(END)\n' + 
-      '@1\n'
+      '(EQ_END{})\n'.format(self.counter_for_eq) +
+      '@SP\n' +
+      'M=M-1\n'
     )
   
   def __generate_gt(self):
+    self.counter_for_gt += 1
     return (
       '// Generating gt\n' +
       '@SP\n' +
@@ -92,27 +100,31 @@ class CodeWriter:
       'D=M\n' +
       'A=A-1\n' +
       'D=M-D\n' +
-      '@X_IS_GREATER\n' +
+      '@X_IS_GREATER{}\n'.format(self.counter_for_gt) +
       'D;JGT\n' +
-      '@X_IS_NOT_GREATER\n' +
+      '@X_IS_NOT_GREATER{}\n'.format(self.counter_for_gt) +
       'D;JLE\n' +
-      '(X_IS_GREATER)\n' +
+      '(X_IS_GREATER{})\n'.format(self.counter_for_gt) +
       '@SP\n' +
       'A=M-1\n' +
+      'A=A-1\n' +
       'M=-1\n' +
-      '@END\n' +
+      '@GT_END{}\n'.format(self.counter_for_gt) +
       '0;JMP\n' +
-      '(X_IS_NOT_GREATER)\n' +
+      '(X_IS_NOT_GREATER{})\n'.format(self.counter_for_gt) +
       '@SP\n' +
       'A=M-1\n' +
+      'A=A-1\n' +
       'M=0\n' +
-      '@END\n' +
+      '@GT_END{}\n'.format(self.counter_for_gt) +
       '0;JMP\n' +
-      '(END)\n' +
-      '@1\n'
+      '(GT_END{})\n'.format(self.counter_for_gt) +
+      '@SP\n' +
+      'M=M-1\n'
     )
   
-  def __generate_lt(self):
+  def __generate_lt(self): 
+    self.counter_for_lt += 1
     return (
       '// Generating lt\n' +
       '@SP\n' + 
@@ -120,24 +132,27 @@ class CodeWriter:
       'D=M\n' + 
       'A=A-1\n' + 
       'D=M-D\n' + 
-      '@X_IS_LESS_THAN\n' + 
+      '@X_IS_LESS_THAN{}\n'.format(self.counter_for_lt) + 
       'D;JLT\n' + 
-      '@X_IS_NOT_LESS_THAN\n' + 
-      'D;JGT\n' + 
-      '(X_IS_LESS_THAN)\n' + 
+      '@X_IS_NOT_LESS_THAN{}\n'.format(self.counter_for_lt) + 
+      'D;JGE\n' + 
+      '(X_IS_LESS_THAN{})\n'.format(self.counter_for_lt) + 
       '@SP\n' + 
-      'A=M-1\n' + 
+      'A=M-1\n' +
+      'A=A-1\n' + 
       'M=-1\n' + 
-      '@END\n' + 
+      '@LT_END{}\n'.format(self.counter_for_lt) + 
       '0;JMP\n' + 
-      '(X_IS_NOT_LESS_THAN)\n' + 
+      '(X_IS_NOT_LESS_THAN{})\n'.format(self.counter_for_lt) + 
       '@SP\n' + 
       'A=M-1\n' + 
+      'A=A-1\n' +
       'M=0\n' + 
-      '@END\n' + 
+      '@LT_END{}\n'.format(self.counter_for_lt) + 
       '0;JMP\n' + 
-      '(END)\n' + 
-      '@1\n'
+      '(LT_END{})\n'.format(self.counter_for_lt) +
+      '@SP\n' +
+      'M=M-1\n'
     )
   
   def __generate_and(self):
