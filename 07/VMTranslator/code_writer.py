@@ -42,7 +42,7 @@ class CodeWriter:
       'D;JGT\n'
     )
 
-  def __generate_goto(self, arg1):
+  def __generate_goto(self, label_name):
     return (
       '// Generating goto\n'
       '@{}\n'.format(label_name) +
