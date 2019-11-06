@@ -29,6 +29,27 @@ class CodeWriter:
       return self.__generate_goto(arg1)
     elif command_type == 'C_LABEL':
       return self.__generate_label(arg1)
+    elif command_type == 'C_FUNCTION':
+      return self.__generate_function(arg1, arg2)
+    elif command_type == 'C_CALL':
+      return self.__generate_call(arg1, arg2)
+    elif command_type == 'C_RETURN':
+      return self.__generate_return()
+
+  def __generate_function(self, function_name, local_variable_count):
+    return (
+      '// Generating function\n'
+    )
+
+  def __generate_call(self, function_name, argument_count):
+    return (
+      '// Generating call\n'
+    )
+
+  def __generate_return(self):
+    return (
+      '// Generating return\n'
+    )
 
   def __generate_if(self, label_name):
     return (

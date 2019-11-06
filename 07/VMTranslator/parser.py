@@ -27,6 +27,12 @@ class Parser:
       return 'C_GOTO'
     elif 'label' in vm_line:
       return 'C_LABEL'
+    elif 'function' in vm_line:
+      return 'C_FUNCTION'
+    elif 'call' in vm_line:
+      return 'C_CALL'
+    elif 'return' in vm_line:
+      return 'C_RETURN'
     else:
       raise ValueError('Unknown commmand type')
 
@@ -34,12 +40,14 @@ class Parser:
     command_type = self.command_type(vm_line)
     if command_type == 'C_ARITHMETIC':
       return vm_line
+    elif command_type == 'C_RETURN':
+      return None
     else:
       return vm_line.split(' ')[1]
 
   def arg2(self, vm_line):
     command_type = self.command_type(vm_line)
-    if command_type in ('C_POP', 'C_PUSH'):
+    if command_type in ('C_POP', 'C_PUSH', 'C_FUNCTION', 'C_CALL'):
       return vm_line.split(' ')[2]
     else:
       return None
