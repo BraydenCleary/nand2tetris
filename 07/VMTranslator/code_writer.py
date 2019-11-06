@@ -1,6 +1,6 @@
 class CodeWriter:
-  def __init__(self, vm_filename):
-    self.base_filename = vm_filename.split('.vm')[0].split('/')[-1]
+  def __init__(self, base_filename):
+    self.base_filename = base_filename
     self.counter_for_gt = 0
     self.counter_for_lt = 0
     self.counter_for_eq = 0
