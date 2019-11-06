@@ -12,8 +12,8 @@ class Parser:
           yield preprocessed_line
 
   def command_type(self, vm_line):
-    # Implement next project: 
-      # 'C_LABEL', 'C_GOTO', 'C_IF', 'C_FUNCTION', 'C_RETURN', 'C_CALL'
+    # Implement next: 
+      # 'C_FUNCTION', 'C_RETURN', 'C_CALL'
 
     if vm_line in ARITHMETIC_COMMANDS:
       return 'C_ARITHMETIC'
@@ -21,6 +21,12 @@ class Parser:
       return 'C_POP'
     elif 'push' in vm_line:
       return 'C_PUSH'
+    elif 'if-goto' in vm_line:
+      return 'C_IF'
+    elif 'goto' in vm_line:
+      return 'C_GOTO'
+    elif 'label' in vm_line:
+      return 'C_LABEL'
     else:
       raise ValueError('Unknown commmand type')
 
@@ -28,23 +34,15 @@ class Parser:
     command_type = self.command_type(vm_line)
     if command_type == 'C_ARITHMETIC':
       return vm_line
-    elif command_type == 'C_POP':
-      pop_memory_segment_type_destination = vm_line.split(' ')[1]
-      return pop_memory_segment_type_destination
-    elif command_type == 'C_PUSH':
-      push_memory_segment_type_source = vm_line.split(' ')[1]
-      return push_memory_segment_type_source
+    else:
+      return vm_line.split(' ')[1]
 
   def arg2(self, vm_line):
     command_type = self.command_type(vm_line)
-    if command_type == 'C_ARITHMETIC':
+    if command_type in ('C_POP', 'C_PUSH'):
+      return vm_line.split(' ')[2]
+    else:
       return None
-    elif command_type == 'C_POP':
-      pop_memory_segment_offset_destination = vm_line.split(' ')[2]
-      return pop_memory_segment_offset_destination
-    elif command_type == 'C_PUSH':
-      push_memory_segment_offset_source = vm_line.split(' ')[2]
-      return push_memory_segment_offset_source
 
   def __preprocess_line(self, line):
     return line.split('//')[0].strip()

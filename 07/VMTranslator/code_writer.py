@@ -23,6 +23,37 @@ class CodeWriter:
       return self.__generate_push(arg1, arg2)
     elif command_type == 'C_POP':
       return self.__generate_pop(arg1, arg2)
+    elif command_type == 'C_IF':
+      return self.__generate_if(arg1)
+    elif command_type == 'C_GOTO':
+      return self.__generate_goto(arg1)
+    elif command_type == 'C_LABEL':
+      return self.__generate_label(arg1)
+
+  def __generate_if(self, label_name):
+    return (
+      '// Generating if\n' +
+      '@SP\n' +
+      'A=M-1\n' +
+      'D=M\n' +
+      '@SP\n' +
+      'M=M-1\n' +
+      '@{}\n'.format(label_name) +
+      'D;JGT\n'
+    )
+
+  def __generate_goto(self, arg1):
+    return (
+      '// Generating goto\n'
+      '@{}\n'.format(label_name) +
+      '0;JMP\n'
+    )
+
+  def __generate_label(self, label_name):
+    return (
+      '// Generating label\n' +
+      '({})\n'.format(label_name)
+    )
 
   def __generate_add(self):
     return (
@@ -289,3 +320,6 @@ class CodeWriter:
       '@SP\n' +
       'M=M-1\n'
     )
+
+  def __generate_if_goto(self):
+    pass
