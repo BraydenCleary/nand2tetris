@@ -147,7 +147,7 @@ D=M
 @SP
 M=M-1
 @COMPUTE_ELEMENT
-D;JGT
+D;JNE
 // Generating goto
 @END_PROGRAM
 0;JMP

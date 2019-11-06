@@ -142,7 +142,7 @@ D=M
 @SP
 M=M-1
 @LOOP_START
-D;JGT
+D;JNE
 // Generating push
 @LCL
 D=M

@@ -39,7 +39,7 @@ class CodeWriter:
       '@SP\n' +
       'M=M-1\n' +
       '@{}\n'.format(label_name) +
-      'D;JGT\n'
+      'D;JNE\n'
     )
 
   def __generate_goto(self, label_name):
