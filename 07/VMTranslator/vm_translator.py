@@ -16,18 +16,20 @@ class VmTranslator:
 
     self.contains_sys_vm_file = True if 'Sys.vm' in ''.join(self.files_to_translate) else False
     self.output_string = ''
-    self.initiate_bootstrap = False if len(sys.argv[1]) > 0 else True
-
+    self.initiate_bootstrap = False if len(sys.argv) > 2 else True
       
   def translate(self):
-    if self.initiate_bootstrap:
-      self.__bootstrap_vm_translator()
+    for count, f in enumerate(self.files_to_translate):
+      should_bootstrap = True if count == 0 else False
 
-    for f in self.files_to_translate:
       code_writer = CodeWriter(f.split('.vm')[0].split('/')[-1])
       parser = Parser(f)
 
       for line in parser.read_lines():
+        if should_bootstrap and self.initiate_bootstrap:
+          self.output_string += code_writer.bootstrap(self.contains_sys_vm_file)
+        should_bootstrap = False
+
         command_type = parser.command_type(line)
         arg1 = parser.arg1(line)
         arg2 = parser.arg2(line)
@@ -43,40 +45,6 @@ class VmTranslator:
       asm_filename =  '{}.asm'.format(self.absolute_path.split('.vm')[0])
     with open(asm_filename, "w") as text_file:
       text_file.write(self.output_string)
-
-  def __bootstrap_vm_translator(self):
-    if self.contains_sys_vm_file:
-      sys_init_bootstrap = (
-        '@Sys.init\n' + 
-        '0;JMP\n'
-      )
-    else:
-      sys_init_bootstrap = ''
-
-    general_bootstrap =  (
-        '@SP\n' +
-        'D=A\n' +
-        '@0\n' +
-        'M=D\n' +
-        '@5000\n' +
-        'D=A\n' +
-        '@LCL\n' +
-        'M=D\n' +
-        '@6000\n' +
-        'D=A\n' +
-        '@ARG\n' +
-        'M=D\n' +
-        '@3000\n' +
-        'D=A\n' +
-        '@THIS\n' +
-        'M=D\n' +
-        '@4000\n' +
-        'D=A\n' +
-        '@THAT\n' +
-        'M=D\n'
-      )
-
-    self.output_string += (general_bootstrap + sys_init_bootstrap)
 
 input_vm_filename = sys.argv[1]
 v = VmTranslator(input_vm_filename)

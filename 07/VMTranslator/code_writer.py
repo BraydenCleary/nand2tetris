@@ -1,9 +1,42 @@
+from uuid import uuid4
+
 class CodeWriter:
   def __init__(self, base_filename):
     self.base_filename = base_filename
-    self.counter_for_gt = 0
-    self.counter_for_lt = 0
-    self.counter_for_eq = 0
+
+  def bootstrap(self, contains_sys_vm_file):
+    if contains_sys_vm_file:
+      sys_init_bootstrap = (
+        self.__generate_call('Sys.init', 0)
+      )
+    else:
+      sys_init_bootstrap = ''
+
+    general_bootstrap =  (
+        '// Generating bootstrap\n' +
+        '@256\n' +
+        'D=A\n' +
+        '@SP\n' +
+        'M=D\n' +
+        '@5000\n' +
+        'D=A\n' +
+        '@LCL\n' +
+        'M=D\n' +
+        '@6000\n' +
+        'D=A\n' +
+        '@ARG\n' +
+        'M=D\n' +
+        '@3000\n' +
+        'D=A\n' +
+        '@THIS\n' +
+        'M=D\n' +
+        '@4000\n' +
+        'D=A\n' +
+        '@THAT\n' +
+        'M=D\n'
+      )
+
+    return general_bootstrap + sys_init_bootstrap
 
   def generate(self, command_type, arg1, arg2):
     if command_type == 'C_ARITHMETIC':
@@ -37,7 +70,6 @@ class CodeWriter:
       return self.__generate_return()
 
   def __generate_function(self, function_name, local_variable_count):
-
     return (
       '// Generating function\n' +
       # set label for function
@@ -69,52 +101,134 @@ class CodeWriter:
     )
 
   def __generate_call(self, function_name, argument_count):
+    call_identifier = str(uuid4())
+    arg_subtraction_string = 'D=D-1\n' * int(argument_count)
     return (
-      '// Generating call\n'
+      '// Generating call\n' +
+      '@RETURN_LABEL_FOR_{}_{}\n'.format(function_name, call_identifier) +
+      'D=A\n' +
+      '@SP\n' + 
+      'A=M\n' + 
+      'M=D\n' + 
+      '@SP\n' + 
+      'M=M+1\n' +
+      '@LCL\n' +
+      'D=M\n' +
+      '@SP\n' + 
+      'A=M\n' + 
+      'M=D\n' + 
+      '@SP\n' + 
+      'M=M+1\n' +
+      '@ARG\n' +
+      'D=M\n' +
+      '@SP\n' + 
+      'A=M\n' + 
+      'M=D\n' + 
+      '@SP\n' + 
+      'M=M+1\n' +
+      '@THIS\n' +
+      'D=M\n' +
+      '@SP\n' + 
+      'A=M\n' + 
+      'M=D\n' + 
+      '@SP\n' + 
+      'M=M+1\n' +
+      '@THAT\n' +
+      'D=M\n' +
+      '@SP\n' + 
+      'A=M\n' + 
+      'M=D\n' + 
+      '@SP\n' + 
+      'M=M+1\n' +
+      # ARG = SP - n - 5
+      '@SP\n' +
+      'D=M-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      arg_subtraction_string +
+      '@ARG\n' +
+      'M=D\n' +
+      '@SP\n' +
+      'D=M\n'+
+      '@LCL\n' +
+      'M=D\n'+
+      '@{}\n'.format(function_name) +
+      '0;JMP\n' +
+      '(RETURN_LABEL_FOR_{}_{})\n'.format(function_name, call_identifier)
     )
 
   def __generate_return(self):
+    # this is so wrong, need to figure out why
     return (
-      '// Generating return\n' +
+      '// Generating Frame = LCL\n'
+      '@LCL\n' +
+      'D=M\n' +
+      '@temp_frame\n'+
+      'M=D\n' +
+      '// Generating RET = *(FRAME-5)\n'
+      '@temp_frame\n' +
+      'D=M-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'A=D\n' +
+      'D=M\n' +
+      '@temp_go_to_at_end_of_return\n' +
+      'M=D\n'+
+      '// Generating *ARG = pop()\n' +
       self.__generate_pop('temp', 0) +
       '@5\n' +
       'D=M\n' +
       '@ARG\n' +
       'A=M\n' +
       'M=D\n' +
+      '// Generating SP = ARG + 1\n' +
       '@ARG\n' +
       'D=M\n' +
       '@SP\n' +
       'M=D+1\n' +
-      '@LCL\n' +
+      '// Generating THAT = *(FRAME-1)\n' +
+      '@temp_frame\n' +
       'D=M\n' +
-      '@R13\n' +
-      'M=D\n' +
-      'M=M-1\n' +
-      'A=M\n' +
+      'D=D-1\n' +
+      'A=D\n' +
       'D=M\n' +
       '@THAT\n' +
       'M=D\n' +
-      '@R13\n' +
-      'M=M-1\n' +
-      'A=M\n' +
+      '// Generating THIS = *(FRAME-2)\n' +
+      '@temp_frame\n' +
+      'D=M\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'A=D\n' +
       'D=M\n' +
       '@THIS\n' +
       'M=D\n' +
-      '@R13\n' +
-      'M=M-1\n' +
-      'A=M\n' +
+      '// Generating ARG = *(FRAME-3)\n' +
+      '@temp_frame\n' +
+      'D=M\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'A=D\n' +
       'D=M\n' +
       '@ARG\n' +
       'M=D\n' +
-      '@R13\n' +
-      'M=M-1\n' +
-      'A=M\n' +
+      '// Generating LCL = *(FRAME-4)\n' +
+      '@temp_frame\n' +
+      'D=M\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'D=D-1\n' +
+      'A=D\n' +
       'D=M\n' +
       '@LCL\n' +
       'M=D\n' +
-      '@R13\n' +
-      'M=M-1\n' +
+      '@temp_go_to_at_end_of_return\n' +
       'A=M\n' +
       '0;JMP\n'
     )
@@ -180,7 +294,7 @@ class CodeWriter:
     )
   
   def __generate_eq(self):
-    self.counter_for_eq += 1
+    eq_identifier = str(uuid4())
     return (
       '// Generating eq\n' +
       '@SP\n' + 
@@ -188,31 +302,31 @@ class CodeWriter:
       'D=M\n' + 
       'A=A-1\n' + 
       'D=M-D\n' + 
-      '@IS_EQUAL{}\n'.format(self.counter_for_eq) + 
+      '@IS_EQUAL_{}\n'.format(self.eq_identifier) + 
       'D;JEQ\n' + 
-      '@IS_NOT_EQUAL{}\n'.format(self.counter_for_eq) + 
+      '@IS_NOT_EQUAL_{}\n'.format(self.eq_identifier) + 
       'D;JNE\n' + 
-      '(IS_EQUAL{})\n'.format(self.counter_for_eq) + 
+      '(IS_EQUAL_{})\n'.format(self.eq_identifier) + 
       '@SP\n' +
       'A=M-1\n' +
       'A=A-1\n' +
       'M=-1\n' +
-      '@EQ_END{}\n'.format(self.counter_for_eq) + 
+      '@EQ_END_{}\n'.format(self.eq_identifier) + 
       '0;JMP\n' + 
-      '(IS_NOT_EQUAL{})\n'.format(self.counter_for_eq) + 
+      '(IS_NOT_EQUAL_{})\n'.format(self.eq_identifier) + 
       '@SP\n' + 
       'A=M-1\n' + 
       'A=A-1\n' +
       'M=0\n' + 
-      '@EQ_END{}\n'.format(self.counter_for_eq) + 
+      '@EQ_END_{}\n'.format(self.eq_identifier) + 
       '0;JMP\n' + 
-      '(EQ_END{})\n'.format(self.counter_for_eq) +
+      '(EQ_END_{})\n'.format(self.eq_identifier) +
       '@SP\n' +
       'M=M-1\n'
     )
   
   def __generate_gt(self):
-    self.counter_for_gt += 1
+    gt_identifier = str(uuid4())
     return (
       '// Generating gt\n' +
       '@SP\n' +
@@ -220,31 +334,31 @@ class CodeWriter:
       'D=M\n' +
       'A=A-1\n' +
       'D=M-D\n' +
-      '@X_IS_GREATER{}\n'.format(self.counter_for_gt) +
+      '@X_IS_GREATER_{}\n'.format(gt_identifier) +
       'D;JGT\n' +
-      '@X_IS_NOT_GREATER{}\n'.format(self.counter_for_gt) +
+      '@X_IS_NOT_GREATER_{}\n'.format(gt_identifier) +
       'D;JLE\n' +
-      '(X_IS_GREATER{})\n'.format(self.counter_for_gt) +
+      '(X_IS_GREATER_{})\n'.format(gt_identifier) +
       '@SP\n' +
       'A=M-1\n' +
       'A=A-1\n' +
       'M=-1\n' +
-      '@GT_END{}\n'.format(self.counter_for_gt) +
+      '@GT_END_{}\n'.format(gt_identifier) +
       '0;JMP\n' +
-      '(X_IS_NOT_GREATER{})\n'.format(self.counter_for_gt) +
+      '(X_IS_NOT_GREATER_{})\n'.format(gt_identifier) +
       '@SP\n' +
       'A=M-1\n' +
       'A=A-1\n' +
       'M=0\n' +
-      '@GT_END{}\n'.format(self.counter_for_gt) +
+      '@GT_END_{}\n'.format(gt_identifier) +
       '0;JMP\n' +
-      '(GT_END{})\n'.format(self.counter_for_gt) +
+      '(GT_END_{})\n'.format(gt_identifier) +
       '@SP\n' +
       'M=M-1\n'
     )
   
   def __generate_lt(self): 
-    self.counter_for_lt += 1
+    lt_identifier = str(uuid4())
     return (
       '// Generating lt\n' +
       '@SP\n' + 
@@ -252,25 +366,25 @@ class CodeWriter:
       'D=M\n' + 
       'A=A-1\n' + 
       'D=M-D\n' + 
-      '@X_IS_LESS_THAN{}\n'.format(self.counter_for_lt) + 
+      '@X_IS_LESS_THAN_{}\n'.format(lt_identifier) + 
       'D;JLT\n' + 
-      '@X_IS_NOT_LESS_THAN{}\n'.format(self.counter_for_lt) + 
+      '@X_IS_NOT_LESS_THAN_{}\n'.format(lt_identifier) + 
       'D;JGE\n' + 
-      '(X_IS_LESS_THAN{})\n'.format(self.counter_for_lt) + 
+      '(X_IS_LESS_THAN_{})\n'.format(lt_identifier) + 
       '@SP\n' + 
       'A=M-1\n' +
       'A=A-1\n' + 
       'M=-1\n' + 
-      '@LT_END{}\n'.format(self.counter_for_lt) + 
+      '@LT_END_{}\n'.format(lt_identifier) + 
       '0;JMP\n' + 
-      '(X_IS_NOT_LESS_THAN{})\n'.format(self.counter_for_lt) + 
+      '(X_IS_NOT_LESS_THAN_{})\n'.format(lt_identifier) + 
       '@SP\n' + 
       'A=M-1\n' + 
       'A=A-1\n' +
       'M=0\n' + 
-      '@LT_END{}\n'.format(self.counter_for_lt) + 
+      '@LT_END_{}\n'.format(lt_identifier) + 
       '0;JMP\n' + 
-      '(LT_END{})\n'.format(self.counter_for_lt) +
+      '(LT_END_{})\n'.format(lt_identifier) +
       '@SP\n' +
       'M=M-1\n'
     )
