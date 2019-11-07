@@ -37,8 +37,35 @@ class CodeWriter:
       return self.__generate_return()
 
   def __generate_function(self, function_name, local_variable_count):
+
     return (
-      '// Generating function\n'
+      '// Generating function\n' +
+      # set label for function
+      '({})\n'.format(function_name) +
+      # create local variables (implementing a loop here)
+      '@{}\n'.format(local_variable_count) +
+      'D=A\n' + 
+      '@R13\n' +
+      'M=D\n' +
+      '@R14\n' +
+      'M=0\n' +
+      '({}_LOCAL_VARIABLES_LOOP)\n'.format(function_name) +
+      '@R13\n' +
+      'D=M\n' +
+      '@R14\n' +
+      'D=M-D\n' + 
+      '@{}_LOCAL_VARIABLES_END\n'.format(function_name) +
+      'D;JEQ\n' +
+      '@SP\n' +
+      'A=M\n' +
+      'M=0\n' +
+      '@SP\n' +
+      'M=M+1\n' +
+      '@R14\n' +
+      'M=M+1\n' +
+      '@{}_LOCAL_VARIABLES_LOOP\n'.format(function_name) +
+      '0;JMP\n' +
+      '({}_LOCAL_VARIABLES_END)\n'.format(function_name)
     )
 
   def __generate_call(self, function_name, argument_count):
@@ -48,7 +75,48 @@ class CodeWriter:
 
   def __generate_return(self):
     return (
-      '// Generating return\n'
+      '// Generating return\n' +
+      self.__generate_pop('temp', 0) +
+      '@5\n' +
+      'D=M\n' +
+      '@ARG\n' +
+      'A=M\n' +
+      'M=D\n' +
+      '@ARG\n' +
+      'D=M\n' +
+      '@SP\n' +
+      'M=D+1\n' +
+      '@LCL\n' +
+      'D=M\n' +
+      '@R13\n' +
+      'M=D\n' +
+      'M=M-1\n' +
+      'A=M\n' +
+      'D=M\n' +
+      '@THAT\n' +
+      'M=D\n' +
+      '@R13\n' +
+      'M=M-1\n' +
+      'A=M\n' +
+      'D=M\n' +
+      '@THIS\n' +
+      'M=D\n' +
+      '@R13\n' +
+      'M=M-1\n' +
+      'A=M\n' +
+      'D=M\n' +
+      '@ARG\n' +
+      'M=D\n' +
+      '@R13\n' +
+      'M=M-1\n' +
+      'A=M\n' +
+      'D=M\n' +
+      '@LCL\n' +
+      'M=D\n' +
+      '@R13\n' +
+      'M=M-1\n' +
+      'A=M\n' +
+      '0;JMP\n'
     )
 
   def __generate_if(self, label_name):
@@ -253,7 +321,10 @@ class CodeWriter:
       )
     elif segment_type == 'static':
       value_to_be_pushed = (
-        '@{}.{}\n'.format(self.base_filename, segment_offset) +
+        '@16\n' + 
+        'D=A\n' + 
+        '@{}\n'.format(segment_offset) + 
+        'A=D+A\n' + 
         'D=M\n'
       )
     elif segment_type == 'temp':
@@ -293,8 +364,10 @@ class CodeWriter:
   def __generate_pop(self, segment_type, segment_offset):
     if segment_type == 'static':
       pop_destination = (
-        '@{}.{}\n'.format(self.base_filename, segment_offset) +
-        'D=A\n'
+        '@16\n'
+        'D=A\n' +
+        '@{}\n'.format(segment_offset) +
+        'D=D+A\n'
       )
     elif segment_type == 'pointer':
       pop_destination = (
@@ -341,6 +414,3 @@ class CodeWriter:
       '@SP\n' +
       'M=M-1\n'
     )
-
-  def __generate_if_goto(self):
-    pass

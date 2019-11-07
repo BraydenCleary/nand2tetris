@@ -28,8 +28,10 @@ A=M-1
 D=M
 @R13
 M=D
-@StaticTest.8
+@16
 D=A
+@8
+D=D+A
 @R14
 M=D
 @R13
@@ -45,8 +47,10 @@ A=M-1
 D=M
 @R13
 M=D
-@StaticTest.3
+@16
 D=A
+@3
+D=D+A
 @R14
 M=D
 @R13
@@ -62,8 +66,10 @@ A=M-1
 D=M
 @R13
 M=D
-@StaticTest.1
+@16
 D=A
+@1
+D=D+A
 @R14
 M=D
 @R13
@@ -74,7 +80,10 @@ M=D
 @SP
 M=M-1
 // Generating push
-@StaticTest.3
+@16
+D=A
+@3
+A=D+A
 D=M
 @SP
 A=M
@@ -82,7 +91,10 @@ M=D
 @SP
 M=M+1
 // Generating push
-@StaticTest.1
+@16
+D=A
+@1
+A=D+A
 D=M
 @SP
 A=M
@@ -99,7 +111,10 @@ M=D
 @SP
 M=M-1
 // Generating push
-@StaticTest.8
+@16
+D=A
+@8
+A=D+A
 D=M
 @SP
 A=M
