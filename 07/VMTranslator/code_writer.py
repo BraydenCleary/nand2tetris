@@ -193,8 +193,8 @@ class CodeWriter:
       '@temp_go_to_at_end_of_return\n' +
       'M=D\n'+
       '// ~~Generating *ARG = pop()\n' +
-      self.__generate_pop('temp', 0) +
-      '@5\n' +
+      self.__generate_pop('temp', 3) +
+      '@8\n' +
       'D=M\n' +
       '@ARG\n' +
       'A=M\n' +
@@ -475,10 +475,7 @@ class CodeWriter:
       )
     elif segment_type == 'static':
       value_to_be_pushed = (
-        '@16\n' + 
-        'D=A\n' + 
-        '@{}\n'.format(segment_offset) + 
-        'A=D+A\n' + 
+        '@{}.{}\n'.format(self.base_filename, segment_offset) + 
         'D=M\n'
       )
     elif segment_type == 'temp':
@@ -521,10 +518,8 @@ class CodeWriter:
   def __generate_pop(self, segment_type, segment_offset):
     if segment_type == 'static':
       pop_destination = (
-        '@16\n'
-        'D=A\n' +
-        '@{}\n'.format(segment_offset) +
-        'D=D+A\n'
+        '@{}.{}\n'.format(self.base_filename, segment_offset) +
+        'D=A\n'
       )
     elif segment_type == 'pointer':
       pop_destination = (
