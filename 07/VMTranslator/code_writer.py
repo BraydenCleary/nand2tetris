@@ -29,12 +29,12 @@ class CodeWriter:
         'D=A\n' +
         '@ARG\n' +
         'M=D\n' +
-        '// ~~Setting THIS to 6000\n' +
+        '// ~~Setting THIS to 3000\n' +
         '@3000\n' +
         'D=A\n' +
         '@THIS\n' +
         'M=D\n' +
-        '// ~~Setting THAT to 6000\n' +
+        '// ~~Setting THAT to 4000\n' +
         '@4000\n' +
         'D=A\n' +
         '@THAT\n' +
