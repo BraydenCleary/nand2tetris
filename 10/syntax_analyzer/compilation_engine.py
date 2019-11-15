@@ -14,26 +14,8 @@ class CompilationEngine:
     with open('/Users/braydencleary/Desktop/nand2tetris/projects/10/syntax_analyzer/output.xml', 'w') as output_file:
       output_file.write(parseString(tostring(self.root)).toprettyxml())
 
-  def __compile_token(self, token, parent):
-    self.current_token_index += 1
-
-    sub_element = SubElement(parent, token['type'].lower())
-    sub_element.text = token['value']
-
-    return sub_element
-
-  def __add_node(self, token_type, parent):
-    return SubElement(parent, token_type.lower())
-
   def __compile_class(self):
-    # class
-    self.__compile_token(self.__current_token(), self.root)
-
-    # className
-    self.__compile_token(self.__current_token(), self.root)
-
-    # {
-    self.__compile_token(self.__current_token(), self.root)
+    self.__compile_n_tokens(3, self.root)
 
     self.__compile_class_var_dec()
     self.__compile_subroutine_dec()
@@ -44,10 +26,7 @@ class CompilationEngine:
 
     class_var_dec_root = self.__add_node('classVarDec', self.root)
 
-    while self.__current_token()['value'] != ';':
-      self.__compile_token(self.__current_token(), class_var_dec_root)
-
-    self.__compile_token(self.__current_token(), class_var_dec_root)
+    self.__compile_through(';', class_var_dec_root)
 
     self.__compile_class_var_dec()
 
@@ -60,33 +39,24 @@ class CompilationEngine:
 
     subroutine_dec_root = self.__add_node('subroutineDec', self.root)
 
-    self.__compile_token(self.__current_token(), subroutine_dec_root)
-
-    # ('void' | type)
-    self.__compile_token(self.__current_token(), subroutine_dec_root)
-
-    # subroutine_name
-    self.__compile_token(self.__current_token(), subroutine_dec_root)    
-
-    # (
-    self.__compile_token(self.__current_token(), subroutine_dec_root)
+    self.__compile_n_tokens(4, subroutine_dec_root)
 
     self.__compile_parameter_list(subroutine_dec_root)
 
     # )
-    self.__compile_token(self.__current_token(), subroutine_dec_root)
+    self.__compile_n_tokens(1, subroutine_dec_root)
 
     subroutine_body_root = self.__add_node('subroutineBody', subroutine_dec_root)
 
     # {
-    self.__compile_token(self.__current_token(), subroutine_body_root)
+    self.__compile_n_tokens(1, subroutine_body_root)
 
     self.__compile_var_dec(subroutine_body_root)
 
     self.__compile_statements(subroutine_body_root)
 
     # }
-    self.__compile_token(self.__current_token(), subroutine_body_root)
+    self.__compile_n_tokens(1, subroutine_body_root)
 
     self.__compile_subroutine_dec()
 
@@ -96,24 +66,19 @@ class CompilationEngine:
     
     parameter_list_root = self.__add_node('parameterList', parent)
 
-    while self.__current_token()['value'] != ')':
-      self.__compile_token(self.__current_token(), parameter_list_root)
+    self.__compile_until(')', parameter_list_root)
 
   def __compile_var_dec(self, parent):
     if self.__current_token()['value'] != 'var':
       return
 
     var_dec_root = self.__add_node('varDec', parent)
-
-    while self.__current_token()['value'] != ';':
-      self.__compile_token(self.__current_token(), var_dec_root)
-
-    self.__compile_token(self.__current_token(), var_dec_root)
+    
+    self.__compile_through(';', var_dec_root)
 
     self.__compile_var_dec(parent);
 
   def __compile_statements(self, parent):
-
     if self.__current_token()['value'] not in ['let', 'if', 'while', 'do', 'return']:
       return
 
@@ -127,49 +92,40 @@ class CompilationEngine:
         'do': self.__compile_do,
         'return': self.__compile_return
       }[self.__current_token()['value']](statements_root)
-
-    self.__compile_token(self.__current_token(), statements_root)
+    
+    self.__compile_n_tokens(1, statements_root)
   
   def __compile_let(self, parent):
     let_statement_root = self.__add_node('letStatement', parent)
 
-    while self.__current_token()['value'] != ';':
-      self.__compile_token(self.__current_token(), let_statement_root)
-
-    self.__compile_token(self.__current_token(), let_statement_root)
+    self.__compile_through(';', let_statement_root)
 
   def __compile_if(self, parent):
     if_statement_root = self.__add_node('ifStatement', parent)
 
-    while self.__current_token()['value'] != '{':
-      self.__compile_token(self.__current_token(), if_statement_root)
-
-    self.__compile_token(self.__current_token(), if_statement_root)
+    self.__compile_through('{', if_statement_root)
 
     self.__compile_statements(if_statement_root)
 
-    self.__compile_token(self.__current_token(), if_statement_root)
-    
+    self.__compile_n_tokens(1, if_statement_root)
     
     if self.__current_token()['value'] == 'else':
-      self.__compile_token(self.__current_token(), if_statement_root)
-      self.__compile_token(self.__current_token(), if_statement_root)
-      
+      self.__compile_n_tokens(2, if_statement_root)
+
       self.__compile_statements(if_statement_root)
 
-      self.__compile_token(self.__current_token(), if_statement_root)
+      self.__compile_n_tokens(1, if_statement_root)
 
   def __compile_while(self, parent):
     while_statement_root = self.__add_node('whileStatement', parent)
 
-    while self.__current_token()['value'] != '{':
-      self.__compile_token(self.__current_token(), while_statement_root)
+    self.__compile_until('{', while_statement_root)
 
-    self.__compile_token(self.__current_token(), while_statement_root)
+    self.__compile_n_tokens(1, while_statement_root)
 
     self.__compile_statements(while_statement_root)
 
-    self.__compile_token(self.__current_token(), while_statement_root)
+    self.__compile_n_tokens(1, while_statement_root)
 
   def __compile_do(self, parent):
     pass
@@ -193,6 +149,8 @@ class CompilationEngine:
     # compiles a (possibly empty) comma-separated list of expressions
     pass
 
+  # helpers
+
   def __previous_token(self):
     return self.tokens[self.current_token_index - 1]
 
@@ -201,3 +159,28 @@ class CompilationEngine:
 
   def __next_token(self):
     return self.tokens[self.current_token_index + 1]
+
+  def __compile_until(self, stop_character, parent):
+    while self.__current_token()['value'] != stop_character:
+      self.__compile_token(self.__current_token(), parent)
+
+  def __compile_through(self, stop_character, parent):
+    while self.__current_token()['value'] != stop_character:
+      self.__compile_token(self.__current_token(), parent)    
+
+    self.__compile_token(self.__current_token(), parent)
+
+  def __compile_token(self, token, parent):
+    self.current_token_index += 1
+
+    sub_element = SubElement(parent, token['type'].lower())
+    sub_element.text = token['value']
+
+    return sub_element
+
+  def __add_node(self, token_type, parent):
+    return SubElement(parent, token_type.lower())
+
+  def __compile_n_tokens(self, number_of_tokens, parent):
+    for _ in range(number_of_tokens):
+      self.__compile_token(self.__current_token(), parent)
