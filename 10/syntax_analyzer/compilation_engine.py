@@ -158,22 +158,33 @@ class CompilationEngine:
       }[token['value']](statements_root)
 
   
-  def compile_let(self, parent):
+  def __compile_let(self, parent):
+    let_statement_root = self.__compile_token('letStatement', None, parent)
     token = self.__current_token()
 
-  def compile_if(self, parent):
-    # compiles an if statement, possibly with a trailing else clause
-    pass
+    while token['value'] != ';':
+      self.__compile_token(token['type'], token['value'], let_statement_root)
+      self.current_token_index += 1
+      token = self.__current_token()
 
-  def compile_while(self, parent):
+    self.__compile_token(token['type'], token['value'], let_statement_root)
+    self.current_token_index += 1
+
+  def __compile_if(self, parent):
+    if_statement_root = self.__compile_token('ifStatement', None, parent)
+    token = self.__current_token()
+
+    # left off here
+
+  def __compile_while(self, parent):
     # compiles a while statement
     pass
 
-  def compile_do(self, parent):
+  def __compile_do(self, parent):
     # compiles a do statement
     pass
 
-  def compile_return(self, parent):
+  def __compile_return(self, parent):
     # compiles a return statement
     pass
 
