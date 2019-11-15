@@ -46,6 +46,7 @@ class VmTranslator:
     with open(asm_filename, "w") as text_file:
       text_file.write(self.output_string)
 
-input_vm_filename = sys.argv[1]
-v = VmTranslator(input_vm_filename)
-v.translate()
+if __name__ == '__main__':
+  input_vm_filename = sys.argv[1]
+  v = VmTranslator(input_vm_filename)
+  v.translate()

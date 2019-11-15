@@ -74,16 +74,17 @@ class HackAssembler:
   def __increment_next_open_memory_address(self):
     self.next_open_memory_address += 1
 
-filenames = [
-  '/Users/braydencleary/Desktop/nand2tetris/projects/06/max/Max.asm',
-  '/Users/braydencleary/Desktop/nand2tetris/projects/06/pong/Pong.asm',
-  '/Users/braydencleary/Desktop/nand2tetris/projects/06/rect/Rect.asm'
-]
+if __name__ == '__main__':
+  filenames = [
+    '/Users/braydencleary/Desktop/nand2tetris/projects/06/max/Max.asm',
+    '/Users/braydencleary/Desktop/nand2tetris/projects/06/pong/Pong.asm',
+    '/Users/braydencleary/Desktop/nand2tetris/projects/06/rect/Rect.asm'
+  ]
 
-for f in filenames:
-  HackAssembler(f).compile()
+  for f in filenames:
+    HackAssembler(f).compile()
 
-print "Testing if assembler is working:"
-print filecmp.cmp('/Users/braydencleary/Desktop/nand2tetris/projects/06/max/Max.hack',    '/Users/braydencleary/Desktop/nand2tetris/projects/06/max/Max_Brayden.hack')
-print filecmp.cmp('/Users/braydencleary/Desktop/nand2tetris/projects/06/pong/Pong.hack',  '/Users/braydencleary/Desktop/nand2tetris/projects/06/pong/Pong_Brayden.hack')
-print filecmp.cmp('/Users/braydencleary/Desktop/nand2tetris/projects/06/rect/Rect.hack',  '/Users/braydencleary/Desktop/nand2tetris/projects/06/rect/Rect_Brayden.hack')
+  print "Testing if assembler is working:"
+  print filecmp.cmp('/Users/braydencleary/Desktop/nand2tetris/projects/06/max/Max.hack',    '/Users/braydencleary/Desktop/nand2tetris/projects/06/max/Max_Brayden.hack')
+  print filecmp.cmp('/Users/braydencleary/Desktop/nand2tetris/projects/06/pong/Pong.hack',  '/Users/braydencleary/Desktop/nand2tetris/projects/06/pong/Pong_Brayden.hack')
+  print filecmp.cmp('/Users/braydencleary/Desktop/nand2tetris/projects/06/rect/Rect.hack',  '/Users/braydencleary/Desktop/nand2tetris/projects/06/rect/Rect_Brayden.hack')

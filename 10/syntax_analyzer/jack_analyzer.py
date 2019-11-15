@@ -27,6 +27,7 @@ class JackAnalyzer:
     with open(output_filename, "w") as output_file:
       output_file.write(output)
 
-input_source = sys.argv[1]
-a = JackAnalyzer(input_source)
-a.analyze()
+if __name__ == '__main__':
+  input_source = sys.argv[1]
+  a = JackAnalyzer(input_source)
+  a.analyze()
