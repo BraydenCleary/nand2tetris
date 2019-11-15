@@ -11,9 +11,20 @@ class JackTokenizer:
 
   def __parse_tokens(self, jack_file):
     tokens = []
+    encountered_start_of_multiline_comment = False
     with open(jack_file) as f:
       for line in f.readlines():
-        chars_in_line = list(line.split('//')[0].split('/**')[0].strip().replace('\n', '').replace('\r', ''))
+        chars_in_line = line.split('//')[0].strip().replace('\n', '').replace('\r', '')
+        if '/**' in chars_in_line or encountered_start_of_multiline_comment:
+          encountered_start_of_multiline_comment = True
+          if '*/' in chars_in_line:
+            encountered_end_of_multiline_comment = True
+            encountered_start_of_multiline_comment = False
+            continue
+          else:
+            continue
+
+        chars_in_line = list(chars_in_line)
         current_token = ''
         for index, char in enumerate(chars_in_line):
           if len(chars_in_line) == 1:
@@ -56,7 +67,7 @@ class JackTokenizer:
       if next_character.isdigit():
         return 'INCOMPLETE'
       else:
-        return 'INT_CONSTANT'
+        return 'INTEGER_CONSTANT'
     elif token in ('class', 'constructor', 'function', 'method', 'field', 'static', 'var', 'int', 'char', 'boolean', 'void', 'true', 'false', 'null', 'this', 'let', 'do', 'if', 'else', 'while', 'return'):
       return 'KEYWORD'
     else:
